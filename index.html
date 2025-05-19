@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cultura</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Cultura</h1>
+    <video id="videoPlayer" controls autoplay loop></video>
+    <p class="mensaje">Disfrutá una selección de videos culturales.</p>
+  </div>
+
+  <script>
+    // Lista de videos disponibles (solo nombres, deben estar en la carpeta "videos")
+    const videos = [
+      "videos/video1.mp4",
+      "videos/video2.webm",
+      "videos/video3.mp4"
+    ];
+
+    const videoPlayer = document.getElementById("videoPlayer");
+
+    // Función para obtener un video aleatorio
+    function obtenerVideoAleatorio(excluirActual) {
+      let nuevo;
+      do {
+        nuevo = videos[Math.floor(Math.random() * videos.length)];
+      } while (nuevo === excluirActual && videos.length > 1);
+      return nuevo;
+    }
+
+    // Cargar primer video
+    let videoActual = obtenerVideoAleatorio(null);
+    videoPlayer.src = videoActual;
+
+    // Al finalizar, cargar otro aleatorio
+    videoPlayer.addEventListener("ended", () => {
+      videoActual = obtenerVideoAleatorio(videoActual);
+      videoPlayer.src = videoActual;
+      videoPlayer.play();
+    });
+  </script>
+</body>
+</html>
