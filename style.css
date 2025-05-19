@@ -17,7 +17,8 @@ html, body {
 }
 
 video {
-  width: 90%;
+  width: 1000px;
+  height: 600px;
   object-fit: contain;
   background: black;
 }
