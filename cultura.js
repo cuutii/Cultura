@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const videos = [
-    "videos/20250519_084737[1].mp4",
+    "videos/20250519_084737[1].mp4"
   ];
 
   const videoPlayer = document.getElementById("videoPlayer");
