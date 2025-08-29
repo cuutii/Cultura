@@ -1,17 +1,156 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cultura</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="cultura.js" defer></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reproductor Fullscreen | Playlist</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="contenedor">
-    <h1>Cultura</h1>
-    <video id="videoPlayer" controls autoplay loop></video>
-    <p class="mensaje">Disfrutá una selección de videos culturales.</p>
+  <!-- Pantalla inicial para cumplir con políticas de autoplay/fullscreen -->
+  <div id="gate">
+    <div class="gate-card">
+      <h1>Reproductor de videos</h1>
+      <p>Hacé clic en “Iniciar” para entrar en pantalla completa y reproducir automáticamente.</p>
+      <button id="startBtn">Iniciar</button>
+    </div>
   </div>
+
+  <!-- Contenedor del video -->
+  <div id="player-wrap" class="hidden">
+    <video id="player" playsinline muted preload="auto"></video>
+
+    <!-- Overlay de controles mínimos (opcional) -->
+    <div class="overlay-controls">
+      <button id="toggleMute" title="Silenciar/Activar sonido">🔊/🔇</button>
+      <button id="pausePlay" title="Pausar/Reproducir">⏯️</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIGURÁ TU PLAYLIST ACÁ ===
+    // Colocá tus archivos de video dentro de /videos
+    // Podés mezclar extensiones .mp4, .webm (ideal H.264/AAC o VP9/Opus)
+    const PLAYLIST = [
+      "videos/video1.mp4",
+      "videos/video2.mp4",
+      "videos/video3.mp4",
+      // Agregá más acá...
+    ];
+
+    // Si querés reproducción aleatoria, seteá en true
+    const SHUFFLE = false;
+
+    // === LÓGICA DEL REPRODUCTOR ===
+    const gate = document.getElementById("gate");
+    const startBtn = document.getElementById("startBtn");
+    const wrap = document.getElementById("player-wrap");
+    const video = document.getElementById("player");
+    const toggleMute = document.getElementById("toggleMute");
+    const pausePlay = document.getElementById("pausePlay");
+    const status = document.getElementById("status");
+
+    let index = 0;
+    let order = [...PLAYLIST];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function updateStatus(text) {
+      status.textContent = text || "";
+    }
+
+    function loadCurrent() {
+      if (!order.length) return;
+      if (index >= order.length) index = 0; // loop
+      const src = order[index];
+      video.src = src;
+      updateStatus(`Reproduciendo ${index + 1} / ${order.length}`);
+      // Para cumplir autoplay en la mayoría de navegadores, mantener muted=true
+      // El usuario puede activar sonido con el botón.
+      video.play().catch(err => {
+        console.warn("Autoplay bloqueado:", err);
+      });
+    }
+
+    function nextVideo() {
+      index++;
+      loadCurrent();
+    }
+
+    async function enterFullscreen(elem) {
+      try {
+        if (elem.requestFullscreen) await elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
+        else if (elem.msRequestFullscreen) await elem.msRequestFullscreen();
+      } catch (e) {
+        console.warn("No se pudo entrar a fullscreen:", e);
+      }
+    }
+
+    function keepFullscreen() {
+      // Si el usuario sale de fullscreen, intentamos volver al siguiente video
+      document.addEventListener("fullscreenchange", () => {
+        const inFs = !!document.fullscreenElement;
+        if (!inFs) {
+          // No forzamos inmediatamente, pero lo intentamos en el próximo tick
+          // para no ser invasivos.
+          setTimeout(() => enterFullscreen(wrap), 200);
+        }
+      });
+    }
+
+    startBtn.addEventListener("click", async () => {
+      // Preparar orden
+      order = SHUFFLE ? shuffle([...PLAYLIST]) : [...PLAYLIST];
+      index = 0;
+
+      // Mostrar player y ocultar gate
+      gate.classList.add("hidden");
+      wrap.classList.remove("hidden");
+
+      // Entrar en fullscreen
+      await enterFullscreen(wrap);
+      keepFullscreen();
+
+      // Cargar y reproducir
+      loadCurrent();
+    });
+
+    // Encadenar siguiente video cuando termina
+    video.addEventListener("ended", () => {
+      nextVideo();
+    });
+
+    // Botón mute/unmute
+    toggleMute.addEventListener("click", () => {
+      video.muted = !video.muted;
+      toggleMute.textContent = video.muted ? "🔇" : "🔊";
+      updateStatus(video.muted ? "Silencio activado" : "Sonido activado");
+      if (!video.paused) video.play().catch(()=>{});
+    });
+
+    // Botón pausar/reproducir
+    pausePlay.addEventListener("click", () => {
+      if (video.paused) {
+        video.play().catch(()=>{});
+        updateStatus("Reproduciendo");
+      } else {
+        video.pause();
+        updateStatus("Pausado");
+      }
+    });
+
+    // Ajuste: si el video no puede reproducir por política, intentamos al mostrar controles
+    video.addEventListener("play", () => updateStatus("Reproduciendo"));
+    video.addEventListener("pause", () => updateStatus("Pausado"));
+  </script>
 </body>
 </html>
