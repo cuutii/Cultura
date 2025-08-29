@@ -1,27 +1,108 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Reset mínimo */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Pantalla de ingreso */
+#gate {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(1200px 600px at 50% 50%, #0b0b0b, #000);
+}
+
+.gate-card {
+  width: min(560px, 92vw);
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  text-align: center;
+}
+
+.gate-card h1 {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}
+
+.gate-card p {
+  opacity: .9;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+.gate-card button {
+  appearance: none;
+  border: 0;
+  background: #27ae60;
+  color: #fff;
+  padding: 12px 18px;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
+  box-shadow: 0 6px 20px rgba(39,174,96,.35);
+}
+.gate-card button:hover { filter: brightness(1.08); }
+.gate-card button:active { transform: translateY(1px) scale(.99); }
+
+.hidden { display: none !important; }
+
+/* Contenedor del reproductor en fullscreen */
+#player-wrap {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Video a pantalla completa (cover) */
+#player {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  background-color: #111;
-  font-family: sans-serif;
-  color: #f0f0f0;
+  height: 100%;
+  object-fit: cover; /* recorta para ocupar todo, sin barras negras */
+  background: #000;
+}
+
+/* Overlay de controles */
+.overlay-controls {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
   display: flex;
-  justify-content: center;
+  gap: 10px;
   align-items: center;
-  flex-direction: column;
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.15);
+  padding: 8px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
 }
 
-video {
-  width: 1000px;
-  height: 600px;
-  object-fit: contain;
-  background: black;
+.overlay-controls button {
+  appearance: none;
+  border: 0;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
 }
+.overlay-controls button:hover { background: rgba(255,255,255,.18); }
 
-   
-  
+.overlay-controls #status {
+  font-size: 14px;
+  opacity: .9;
+  margin-left: 4px;
+}
